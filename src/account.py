@@ -27,3 +27,11 @@ class Account:
                 self.usePromo(promo)
             elif year >= 60 :
                     self.usePromo(promo)
+
+    def transferOut(self,amount):
+        if 0 < amount <= self.balance:
+            self.balance -= amount
+
+    def transferIn(self,amount):
+        if amount > 0 :
+            self.balance += amount
