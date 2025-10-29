@@ -118,19 +118,79 @@ class TestAccount2:
         account = CompanyAccount("XYZ",None)
         assert account.nip_number == "Invalid"
 
-    def test_company_acccount_transfer_in(self):
+    def test_company_account_transfer_in(self):
         account = CompanyAccount("XYZ", "1234567890")
         account.transferIn(1000)
         assert account.balance == 1000
 
-    def test_company_acccount_transfer_out(self):
+    def test_company_account_transfer_out(self):
         account = CompanyAccount("XYZ", "1234567890")
         account.balance = 500
         account.transferOut(100)
         assert account.balance == 400
 
-    def test_company_acccount_transfer_out_too_much(self):
+    def test_company_account_transfer_out_too_much(self):
         account = CompanyAccount("XYZ", "1234567890")
         account.balance = 500
         account.transferOut(-1000)
         assert account.balance == 500
+
+    def test_personal_account_express_transfer_account_positive(self):
+        account = Account("John","Doe","60010112345")
+        account.balance = 100.0
+        account.expressTransferOut(50.0)
+        assert account.balance == 49.0
+
+    def test_personal_account_express_transfer_account_empty(self):
+        account = Account("John","Doe","60010112345")
+        account.balance = 0.0
+        account.expressTransferOut(50.0)
+        assert account.balance == 0.0
+
+    def test_personal_account_express_transfer_account_exact_amount(self):
+        account = Account("John","Doe","60010112345")
+        account.balance = 100.0
+        account.expressTransferOut(100.0)
+        assert account.balance == -1.0
+
+    def test_personal_account_express_transfer_account_too_much(self):
+        account = Account("John","Doe","60010112345")
+        account.balance = 100.0
+        account.expressTransferOut(200.0)
+        assert account.balance == 100.0
+
+    def test_personal_account_express_transfer_account_negative_amount(self):
+        account = Account("John","Doe","60010112345")
+        account.balance = 100.0
+        account.expressTransferOut(-50.0)
+        assert account.balance == 100.0
+
+    def test_company_account_express_transfer_account_positive(self):    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        account = CompanyAccount("XYZ","1234567890")
+        account.balance = 100.0
+        account.expressTransferOut(50.0)
+        assert account.balance == 45.0
+
+    def test_company_account_express_transfer_account_empty(self):
+        account = CompanyAccount("XYZ","1234567890")
+        account.balance = 0.0
+        account.expressTransferOut(50.0)
+        assert account.balance == 0.0
+
+    def test_company_account_express_transfer_account_exact_amount(self):
+        account = CompanyAccount("XYZ","1234567890")
+        account.balance = 100.0
+        account.expressTransferOut(100.0)
+        assert account.balance == -5.0
+
+    def test_company_account_express_transfer_account_too_much(self):
+        account = CompanyAccount("XYZ","1234567890")
+        account.balance = 100.0
+        account.expressTransferOut(200.0)
+        assert account.balance == 100.0
+
+    def test_company_account_express_transfer_account_negative_amount(self):
+        account = CompanyAccount("XYZ","1234567890")
+        account.balance = 100.0
+        account.expressTransferOut(-50.0)
+        assert account.balance == 100.0

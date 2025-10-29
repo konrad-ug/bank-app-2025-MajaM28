@@ -36,6 +36,10 @@ class Account:
         if amount > 0 :
             self.balance += amount
 
+    def expressTransferOut(self,amount):
+        if self.balance + 1 >= amount > 0:
+            self.balance -= (amount + 1)
+
 
 class CompanyAccount(Account):
     def __init__(self,company_name,nip_number):
@@ -49,3 +53,6 @@ class CompanyAccount(Account):
         else:
             return "Invalid"
 
+    def expressTransferOut(self,amount):
+        if self.balance + 5 >= amount > 0:
+            self.balance -= (amount + 5)
