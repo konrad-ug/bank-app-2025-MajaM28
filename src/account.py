@@ -5,7 +5,7 @@ class Account:
         self.balance = 0.0
         self.pesel = self.checkPesel(pesel)
         self.promoCode = promoCode
-        self.canUsePromo(pesel, promoCode)
+        self.canUsePromo(self.pesel, promoCode)
 
 
     def checkPesel(self,pesel):
