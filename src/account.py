@@ -35,3 +35,17 @@ class Account:
     def transferIn(self,amount):
         if amount > 0 :
             self.balance += amount
+
+
+class CompanyAccount(Account):
+    def __init__(self,company_name,nip_number):
+        self.company_name = company_name
+        self.nip_number = self.check_nip(nip_number)
+        self.balance = 0.0
+
+    def check_nip(self,number):
+        if isinstance(number,str) and len(number)==10 :
+            return number
+        else:
+            return "Invalid"
+

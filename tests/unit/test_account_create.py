@@ -1,6 +1,6 @@
 from threading import active_count
 
-from src.account import Account
+from src.account import Account, CompanyAccount
 
 
 class TestAccount:
@@ -101,3 +101,36 @@ class TestAccount2:
         account.balance = 10.0
         account.transferIn(-5.0)
         assert account.balance == 10.0
+
+    def test_company_account_ok(self):
+        account = CompanyAccount("XYZ","1234567890")
+        assert account.nip_number == "1234567890"
+
+    def test_company_account_nip_too_short(self):
+        account = CompanyAccount("XYZ","12345")
+        assert account.nip_number == "Invalid"
+
+    def test_company_account_nip_too_long(self):
+        account = CompanyAccount("XYZ","12345678901234")
+        assert account.nip_number == "Invalid"
+
+    def test_company_account_none(self):
+        account = CompanyAccount("XYZ",None)
+        assert account.nip_number == "Invalid"
+
+    def test_company_acccount_transfer_in(self):
+        account = CompanyAccount("XYZ", "1234567890")
+        account.transferIn(1000)
+        assert account.balance == 1000
+
+    def test_company_acccount_transfer_out(self):
+        account = CompanyAccount("XYZ", "1234567890")
+        account.balance = 500
+        account.transferOut(100)
+        assert account.balance == 400
+
+    def test_company_acccount_transfer_out_too_much(self):
+        account = CompanyAccount("XYZ", "1234567890")
+        account.balance = 500
+        account.transferOut(-1000)
+        assert account.balance == 500
