@@ -30,3 +30,7 @@ class TestAccount:
     def test_correct_code(self):
         account = Account("John", "Doe", "12345678910", "PROM_ABC")
         assert account.balance == 50.0
+
+    def test_incorret_code(self):
+        account = Account("John", "Doe", "12345678910", "PROT_ABC")
+        assert account.balance == 0.0

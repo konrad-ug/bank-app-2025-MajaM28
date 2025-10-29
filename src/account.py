@@ -16,3 +16,7 @@ class Account:
     def usePromo(self,promo):
         if isinstance(promo,str) and promo.startswith("PROM_"):
             self.balance += 50.0
+
+    # def getBirthYear(self,pesel):
+    #     if pesel is not "Invalid":
+    #
