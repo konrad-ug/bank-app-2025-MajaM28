@@ -1,3 +1,5 @@
+from threading import active_count
+
 from src.account import Account
 
 
@@ -20,3 +22,11 @@ class TestAccount:
     def test_pesel_is_none(self):
         account = Account("Jane","Doe",None)
         assert account.pesel == "Invalid"
+
+    def test_no_code(self):
+        account = Account("John", "Doe","12345678910",None)
+        assert account.balance == 0.0
+
+    def test_correct_code(self):
+        account = Account("John", "Doe", "12345678910", "PROM_ABC")
+        assert account.balance == 50.0
