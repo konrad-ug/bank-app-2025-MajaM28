@@ -5,7 +5,8 @@ class Account:
         self.balance = 0.0
         self.pesel = self.checkPesel(pesel)
         self.promoCode = promoCode
-        self.usePromo(promoCode)
+        self.canUsePromo(pesel, promoCode)
+
 
     def checkPesel(self,pesel):
         if pesel is not None and (len(pesel) == 11) :
@@ -17,6 +18,12 @@ class Account:
         if isinstance(promo,str) and promo.startswith("PROM_"):
             self.balance += 50.0
 
-    # def getBirthYear(self,pesel):
-    #     if pesel is not "Invalid":
-    #
+    def canUsePromo(self, pesel, promo):
+        if pesel != "Invalid":
+            year = int(pesel[0:2])
+            month = int(pesel[2:4])
+
+            if month >= 20 :
+                self.usePromo(promo)
+            elif year >= 60 :
+                    self.usePromo(promo)

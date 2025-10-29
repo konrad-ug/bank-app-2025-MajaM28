@@ -34,3 +34,27 @@ class TestAccount:
     def test_incorret_code(self):
         account = Account("John", "Doe", "12345678910", "PROT_ABC")
         assert account.balance == 0.0
+
+    def test_older_age_right_code(self):
+        account = Account("John","Doe","59031412345", "PROM_ABC")
+        assert account.balance == 0.0
+
+    def test_older_age_wrong_code(self):
+        account = Account("John", "Doe", "59031412345", "PROT_ABC")
+        assert account.balance == 0.0
+
+    def test_younger_age_right_code(self):
+        account = Account("John", "Doe", "60010112345", "PROM_ABC")
+        assert account.balance == 50.0
+
+    def test_younger_age_wrong_code(self):
+        account = Account("John", "Doe", "60010112345", "PROT_ABC")
+        assert account.balance == 0.0
+
+    def test_younger_age_no_code(self):
+        account = Account("John", "Doe", "60010112345", None)
+        assert account.balance == 0.0
+
+    def test_older_age_no_code(self):
+        account = Account("John", "Doe", "59031412345", None)
+        assert account.balance == 0.0
