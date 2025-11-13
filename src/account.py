@@ -6,6 +6,7 @@ class Account:
         self.pesel = self.checkPesel(pesel)
         self.promoCode = promoCode
         self.canUsePromo(self.pesel, promoCode)
+        self.history = []
 
 
     def checkPesel(self,pesel):
@@ -31,14 +32,17 @@ class Account:
     def transferOut(self,amount):
         if 0 < amount <= self.balance:
             self.balance -= amount
+            self.history.append(-amount)
 
     def transferIn(self,amount):
         if amount > 0 :
             self.balance += amount
+            self.history.append(amount)
 
     def expressTransferOut(self,amount):
         if self.balance + 1 >= amount > 0:
             self.balance -= (amount + 1)
+            self.history.append(-(amount+1))
 
 
 class CompanyAccount(Account):
@@ -46,6 +50,7 @@ class CompanyAccount(Account):
         self.company_name = company_name
         self.nip_number = self.check_nip(nip_number)
         self.balance = 0.0
+        self.history = []
 
     def check_nip(self,number):
         if isinstance(number,str) and len(number)==10 :
