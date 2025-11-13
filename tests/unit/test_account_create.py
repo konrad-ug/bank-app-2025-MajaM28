@@ -59,6 +59,7 @@ class TestAccount:
         account = Account("John", "Doe", "59031412345", None)
         assert account.balance == 0.0
 
+
 class TestAccount2:
     def test_transfer_out_if_account_positive(self):
         account = Account("John","Doe","60010112345")
@@ -194,3 +195,26 @@ class TestAccount2:
         account.balance = 100.0
         account.expressTransferOut(-50.0)
         assert account.balance == 100.0
+
+
+    def test_historyTransferIn(self):
+        account = Account("John", "Doe", "59031412345", None)
+        assert account.balance == 0.0
+        account.transferIn(50.0)
+        assert account.history == [50.0]
+
+    def test_historyTransferOut(self):
+        account = Account("John", "Doe", "59031412345", None)
+        account.balance = 300.0
+        account.transferOut(100.0)
+        assert account.history == [-100.0]
+
+    def test_historyExpressTransferOut(self):
+        account = Account("John", "Doe", "59031412345", None)
+        account.balance = 300.0
+        account.expressTransferOut(100.0)
+        assert account.history == [-101.0]
+
+    def test_isHistory(self):
+        account = Account("John", "Doe", "59031412345", None)
+        assert account.history == []
