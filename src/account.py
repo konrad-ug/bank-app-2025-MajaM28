@@ -40,9 +40,11 @@ class Account:
             self.history.append(amount)
 
     def expressTransferOut(self,amount):
-        if self.balance + 1 >= amount > 0:
+        if 0 < amount <= self.balance:
             self.balance -= (amount + 1)
-            self.history.append(-(amount+1))
+            self.history.append(-amount)
+            self.history.append(-1)
+
 
 
 class CompanyAccount(Account):
@@ -59,5 +61,7 @@ class CompanyAccount(Account):
             return "Invalid"
 
     def expressTransferOut(self,amount):
-        if self.balance + 5 >= amount > 0:
+        if self.balance >= amount > 0:
             self.balance -= (amount + 5)
+            self.history.append(-amount)
+            self.history.append(-5)
