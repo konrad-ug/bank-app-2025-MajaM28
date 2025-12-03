@@ -213,7 +213,7 @@ class TestAccount2:
         account = Account("John", "Doe", "59031412345", None)
         account.balance = 300.0
         account.expressTransferOut(100.0)
-        assert account.history == [-101.0]
+        assert account.history == [-100.0,-1.0]
 
     def test_isHistory(self):
         account = Account("John", "Doe", "59031412345", None)
