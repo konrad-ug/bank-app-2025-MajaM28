@@ -72,7 +72,6 @@ class Account:
         return decision
 
 
-
 class CompanyAccount(Account):
     def __init__(self,company_name,nip_number):
         self.company_name = company_name
@@ -91,3 +90,29 @@ class CompanyAccount(Account):
             self.balance -= (amount + 5)
             self.history.append(-amount)
             self.history.append(-5)
+
+    def take_loan(self,amount):
+        if self.balance >= (2*amount) and -1775 in self.history:
+            self.balance += amount
+            return True
+        else:
+            return False
+
+class AccountRegistry:
+    def __init__(self):
+        self.accounts = []
+
+    def add_account(self,account: Account):
+        self.accounts.append(account)
+
+    def find_by_pesel(self,pesel):
+        for a in self.accounts:
+            if a.pesel == pesel:
+                return a
+        return None
+
+    def all_accounts(self):
+        return list(self.accounts)
+
+    def account_count(self):
+        return len(self.accounts)
