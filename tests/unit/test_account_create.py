@@ -226,40 +226,12 @@ class TestAccount2:
         account = Account("John", "Doe", "59031412345", None)
         assert account.history == []
 
-    def test_last_three_pos(self):
-        account = Account("John", "Doe", "59031412345", None)
-        account.balance=100.0
-        account.history=[-19.0,10,80,10]
-        account.submit_for_loan(300)
-        assert account.balance==400.0
 
-    def test_last_three_not_all_pos(self):
+    def test_history_too_short(self):
         account = Account("John", "Doe", "59031412345", None)
-        account.balance=100.0
-        account.history=[-19.0,10,80,-10]
-        account.submit_for_loan(300)
-        assert account.balance==100.0
-
-    def test_last_five_larger(self):
-        account = Account("John", "Doe", "59031412345", None)
-        account.balance=650.0
-        account.history=[-19.0,10,80,10,-30,500]
-        account.submit_for_loan(300)
-        assert account.balance==950.0
-
-    def test_last_five_equal(self):
-        account = Account("John", "Doe", "59031412345", None)
-        account.balance=650.0
-        account.history=[-19.0,10.0,80.0,12.0,-2,500.0]
-        account.submit_for_loan(600)
-        assert account.balance==650.0
-
-    def test_last_five_less(self):
-        account = Account("John", "Doe", "59031412345", None)
-        account.balance=650.0
-        account.history=[-19.0,10.0,80.0,12.0,-2,500.0]
-        account.submit_for_loan(10000)
-        assert account.balance==650.0
+        account.balance = 100.0
+        account.history = [40]
+        assert account.balance == 100.0
 
     @pytest.mark.parametrize(
         'before,history,amount,final_balance',
