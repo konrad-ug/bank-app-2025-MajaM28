@@ -1,7 +1,7 @@
 from threading import active_count
 from typing import final
 
-from src.account import Account,CompanyAccount
+from src.account import Account,CompanyAccount,AccountRegistry
 import pytest
 
 @pytest.fixture
@@ -251,6 +251,51 @@ class TestAccount2:
         account.submit_for_loan(amount)
 
         assert account.balance == final_balance
+
+class TestAccount3:
+    def test_if_registry(self):
+        reg = AccountRegistry()
+        assert reg.accounts == []
+
+    def test_add_accounts(self,account):
+        reg = AccountRegistry()
+        account1 = account
+        reg.add_account(account1)
+        assert reg.accounts == [account1]
+
+    def test_find_by_pesel_successful(self,account):
+        reg = AccountRegistry()
+        account1 = account
+        account2 = Account("Jack", "Doe", "59031425345", None)
+        reg.add_account(account1)
+        reg.add_account(account2)
+        res = reg.find_by_pesel("59031412345")
+        assert res == account1
+
+    def test_find_by_pesel_failure(self,account):
+        reg = AccountRegistry()
+        account1 = account
+        account2 = Account("Jack", "Doe", "59031425345", None)
+        reg.add_account(account1)
+        reg.add_account(account2)
+        res = reg.find_by_pesel("59031418345")
+        assert res is None
+
+    def test_list_accounts(self,account):
+        reg = AccountRegistry()
+        account1 = account
+        account2 = Account("Jack", "Doe", "59031425345", None)
+        reg.add_account(account1)
+        reg.add_account(account2)
+        res = reg.all_accounts()
+        assert res == [account1,account2]
+
+    def test_count_accounts(self,account):
+        reg = AccountRegistry()
+        account1 = account
+        reg.add_account(account1)
+        res = reg.account_count()
+        assert res == 1
 
 
 ##pozostałą refaktoryzje zrobie na dniach
