@@ -45,23 +45,31 @@ class Account:
             self.history.append(-amount)
             self.history.append(-1)
 
+    def _last_three_are_plus(self):
+        if len(self.history) > 3:
+            return False
+        last_three = self.history[-3:]
+        return min(last_three) > 0
+
+    def _sum_last_five_larger(self, amount):
+        if len(self.history) < 5:
+            return False
+        last_five = self.history[-5:]
+        return sum(last_five) > amount
+
     def submit_for_loan(self,amount):
-        decision = False
 
-        if len(self.history) >= 3:
-            last_three=self.history[-3:]
-            if min(last_three) > 0:
-                decision = True
-
-        if len(self.history) >= 5:
-            last_five = self.history[-5:]
-            if sum(last_five) > amount:
-                decision = True
-
-        if decision:
+        if self._last_three_are_plus():
             self.balance += amount
+            return True
 
-        return decision
+        if self._sum_last_five_larger(amount):
+            self.balance += amount
+            return True
+
+        return False
+
+
 
 class CompanyAccount(Account):
     def __init__(self,company_name,nip_number):

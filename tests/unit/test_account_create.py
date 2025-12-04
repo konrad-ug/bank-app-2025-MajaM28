@@ -1,6 +1,13 @@
 from threading import active_count
+from typing import final
 
 from src.account import Account,CompanyAccount
+import pytest
+
+@pytest.fixture
+def account():
+    return Account("John", "Doe", "59031412345", None)
+
 
 
 class TestAccount:
@@ -253,3 +260,25 @@ class TestAccount2:
         account.history=[-19.0,10.0,80.0,12.0,-2,500.0]
         account.submit_for_loan(10000)
         assert account.balance==650.0
+
+    @pytest.mark.parametrize(
+        'before,history,amount,final_balance',
+        [
+            (100.0, [-19.0, 10, 80, 10], 300, 400.0),
+            (100.0, [-19.0, 10, 80, -10], 300, 100.0),
+            (650.0, [-19.0, 10, 80, 10, -30, 500], 300, 950.0),
+            (650.0, [-19.0, 10, 80, 12, -2, 500], 600, 650.0),
+            (650.0, [-19.0, 10, 80, 12, -2, 500], 10000, 650.0),
+        ],
+    )
+
+    def test_submit_for_loan(self,account,before,history,amount,final_balance):
+        account.balance = before
+        account.history = history
+
+        account.submit_for_loan(amount)
+
+        assert account.balance == final_balance
+
+
+##pozostałą refaktoryzje zrobie na dniach
