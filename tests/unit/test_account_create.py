@@ -251,6 +251,7 @@ class TestAccount2:
         account.submit_for_loan(amount)
 
         assert account.balance == final_balance
+        
 
 class TestAccount3:
     def test_if_registry(self):
