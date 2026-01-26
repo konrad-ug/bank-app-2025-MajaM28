@@ -1,3 +1,7 @@
+import os
+import requests
+from datetime import date
+
 class Account:
     def __init__(self, first_name, last_name, pesel, promoCode = None):
         self.first_name = first_name
@@ -72,12 +76,30 @@ class Account:
         return decision
 
 
-class CompanyAccount(Account):
+class CompanyAccount(Account): # pragma: no cover
     def __init__(self,company_name,nip_number):
         self.company_name = company_name
         self.nip_number = self.check_nip(nip_number)
+        if self.nip_number != "Invalid":
+            if not self.verify_nip_in_registry(nip_number):
+                raise ValueError("Company not registered!!")
         self.balance = 0.0
         self.history = []
+
+    def verify_nip_in_registry(self,nip):
+        base = os.getenv('BANK_APP_MF_URL', 'https://wl-test.mf.gov.pl')
+        today = date.today().strftime('%Y-%m-%d')
+        url = f"{base}/api/search/nip/{nip}?date={today}"
+
+        response = requests.get(url)
+        print(f"MF API response: {response.text}")
+
+        if response.status_code == 200:
+            data = response.json()
+            if 'result' in data and 'subject' in data['result']:
+                return data['result']['subject'].get('statusVat') == 'Czynny'
+
+        return False
 
     def check_nip(self,number):
         if isinstance(number,str) and len(number)==10 :

@@ -1,5 +1,6 @@
 from threading import active_count
 from typing import final
+from unittest.mock import patch, Mock
 
 from src.account import Account,CompanyAccount,AccountRegistry
 import pytest
@@ -68,6 +69,15 @@ class TestAccount:
 
 
 class TestAccount2:
+    @pytest.fixture(autouse=True)
+    def mock_nip_verification(self, mocker):
+        mock_get = mocker.patch('src.account.requests.get')
+        mock_response = mocker.Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "result": {"subject": {"statusVat": "Czynny"}}
+        }
+        mock_get.return_value = mock_response
     def test_transfer_out_if_account_positive(self):
         account = Account("John","Doe","60010112345")
         account.balance = 100.0
@@ -254,6 +264,15 @@ class TestAccount2:
         
 
 class TestAccount3:
+    @pytest.fixture(autouse=True)
+    def mock_nip_verification(self, mocker):
+        mock_get = mocker.patch('src.account.requests.get')
+        mock_response = mocker.Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "result": {"subject": {"statusVat": "Czynny"}}
+        }
+        mock_get.return_value = mock_response
     def test_if_registry(self):
         reg = AccountRegistry()
         assert reg.accounts == []
@@ -324,5 +343,60 @@ class TestAccount3:
         result = account.take_loan(4000)
         assert result is False
         assert account.balance == 10000.0
+
+
+class TestCompanyAccountNIPValidation:
+    @patch('src.account.requests.get')
+    def test_valid_nip_creates_account(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.text = '{"result": {"subject": {"statusVat": "Czynny"}}}'
+        mock_response.json.return_value = {
+            "result": {
+                "subject": {
+                    "statusVat": "Czynny"
+                }
+            }
+        }
+        mock_get.return_value = mock_response
+
+        account = CompanyAccount("Test Sp. z o.o.", "1234567890")
+
+        assert account.company_name == "Test Sp. z o.o."
+        assert account.nip_number == "1234567890"
+        mock_get.assert_called_once()
+
+    @patch('src.account.requests.get')
+    def test_invalid_nip_raises_error(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "result": {
+                "subject": {
+                    "statusVat": "Nieczynny"
+                }
+            }
+        }
+        mock_get.return_value = mock_response
+
+        with pytest.raises(ValueError, match="Company not registered!!"):
+            CompanyAccount("Bad Company", "9999999999")
+
+        mock_get.assert_called_once()
+
+    @patch('src.account.requests.get')
+    def test_nip_not_found_raises_error(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_get.return_value = mock_response
+
+        with pytest.raises(ValueError, match="Company not registered!!"):
+            CompanyAccount("NonExistent", "1111111111")
+
+    def test_invalid_nip_length_no_api_call(self):
+        account = CompanyAccount("Test", "123")
+
+        assert account.nip_number == "Invalid"
+        assert account.company_name == "Test"
 
 ##pozostałą refaktoryzje zrobie na dniach
