@@ -43,3 +43,20 @@ jobs:
     - name: if less then 100
       run: |
         python3 -m coverage report -m --fail-under=100
+    - name: Start Flask server
+      run: |
+        python -m app.api &
+        sleep 5
+      env:
+        PYTHONPATH: .
+    - name: Test with pytest
+      run: |
+        python3 -m coverage run --source=src -m pytest
+      env:
+        PYTHONPATH: .
+    - name: Coverage
+      run: |
+        python3 -m coverage report -m
+    - name: if less then 100
+      run: |
+        python3 -m coverage report -m --fail-under=100
