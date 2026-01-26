@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from src.account import AccountRegistry
 from src.account import Account
-from tests.unit.test_account_create import account
+
 
 app = Flask(__name__)
 registry = AccountRegistry()
@@ -11,7 +11,9 @@ def create_account():
     data = request.get_json()
     print(f"Create account request: {data}")
     account = Account(data["first_name"], data["last_name"], data["pesel"])
-    registry.add_account(account)
+    created = registry.add_account(account)
+    if not created:
+        return jsonify({"message": "Account with this PESEL already created"}), 409
     return jsonify({"message": "Account created"}), 201
 
 @app.route("/api/accounts", methods=['GET'])
@@ -78,3 +80,35 @@ def delete_account(pesel):
     registry.accounts.remove(account_p)
 
     return jsonify({"message": "Account deleted"}), 200
+
+@app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
+def transfer(pesel):
+    account_p = registry.find_by_pesel(pesel)
+    if account_p is None:
+        return jsonify({"error": "No account with this pesel found"}), 404
+
+    data = request.get_json()
+    amount = data.get("amount")
+    transfer_type = data.get("type")
+
+    if transfer_type not in ["incoming", "outgoing", "express"]:
+        return jsonify({"error": "Unknown transfer type"}), 400
+
+    if transfer_type == "incoming":
+        account_p.balance += amount
+        return jsonify({"message": "Incoming transfer received"}), 200
+
+    if transfer_type == "outgoing":
+        if account_p.balance < amount:
+            return jsonify({"error": "Not enough funds"}), 422
+
+        account_p.balance -= amount
+        return jsonify({"message": "Outgoing transfer received"}), 200
+
+    if transfer_type == "express":
+        account_p.balance += amount
+        return jsonify({"message": "Express transfer received"}), 200
+
+if __name__ == '__main__':
+    print("Starting Flask server...")
+    app.run(debug=True, port=5000, host='127.0.0.1')

@@ -103,7 +103,11 @@ class AccountRegistry:
         self.accounts = []
 
     def add_account(self,account: Account):
-        self.accounts.append(account)
+        if self.find_by_pesel(account.pesel) is None:
+            self.accounts.append(account)
+            return True
+        return False
+
 
     def find_by_pesel(self,pesel):
         for a in self.accounts:
