@@ -251,6 +251,7 @@ class TestAccount2:
         account.submit_for_loan(amount)
 
         assert account.balance == final_balance
+        
 
 class TestAccount3:
     def test_if_registry(self):
@@ -297,5 +298,31 @@ class TestAccount3:
         res = reg.account_count()
         assert res == 1
 
+    def test_company_take_loan_success(self):
+        account = CompanyAccount("XYZ", "1234567890")
+        account.balance = 10000
+        account.history = [-1775, 100, 200]
+
+        result = account.take_loan(4000)
+        assert result is True
+        assert account.balance == 14000.0
+
+    def test_company_take_loan_insufficient_balance(self):
+        account = CompanyAccount("XYZ", "1234567890")
+        account.balance = 5000
+        account.history = [-1775, 100]
+
+        result = account.take_loan(4000)
+        assert result is False
+        assert account.balance == 5000.0
+
+    def test_company_take_loan_no_special_transaction(self):
+        account = CompanyAccount("XYZ", "1234567890")
+        account.balance = 10000
+        account.history = [100, 200]
+
+        result = account.take_loan(4000)
+        assert result is False
+        assert account.balance == 10000.0
 
 ##pozostałą refaktoryzje zrobie na dniach
