@@ -261,6 +261,13 @@ class TestAccount2:
         account.submit_for_loan(amount)
 
         assert account.balance == final_balance
+
+    def test_last_three_and_less_than_three_trans(self):
+        account = Account("Jan", "Kowalski", "12345678901")
+        account.history = [100, 50]
+
+        result = account._last_three_plus()
+        assert result is False
         
 
 class TestAccount3:
@@ -343,6 +350,17 @@ class TestAccount3:
         result = account.take_loan(4000)
         assert result is False
         assert account.balance == 10000.0
+
+    def test_add_account_duplicate(self):
+        registry = AccountRegistry()
+        acc1 = Account("Jan", "Kowalski", "12345678901")
+        acc2 = Account("Anna", "Nowak", "12345678901")
+
+        registry.add_account(acc1)
+        result = registry.add_account(acc2)
+
+        assert result is False
+        assert len(registry.accounts) == 1
 
 
 class TestCompanyAccountNIPValidation:
