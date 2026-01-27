@@ -399,4 +399,52 @@ class TestCompanyAccountNIPValidation:
         assert account.nip_number == "Invalid"
         assert account.company_name == "Test"
 
-##pozostałą refaktoryzje zrobie na dniach
+
+class TestEmailHistory:
+
+    def test_personal_account_send_email_success(self, mocker):
+        mock_send = mocker.patch('src.account.SMTPClient.send', return_value=True)
+
+        account = Account("Jan", "Test", "12345678901")
+        account.history = [100, -50, 200]
+
+        result = account.send_history_by_email("test@example.com")
+
+        assert result is True
+        mock_send.assert_called_once()
+
+    def test_personal_account_send_email_failure(self, mocker):
+        mock_send = mocker.patch('src.account.SMTPClient.send', return_value=False)
+
+        account = Account("Jan", "Test", "12345678901")
+        result = account.send_history_by_email("test@example.com")
+
+        assert result is False
+
+    def test_company_account_send_email_success(self, mocker):
+        mock_get = mocker.patch('src.account.requests.get')
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "result": {"subject": {"statusVat": "Czynny"}}
+        }
+
+        mock_send = mocker.patch('src.account.SMTPClient.send', return_value=True)
+
+        company = CompanyAccount("Comp", "1234567890")
+        result = company.send_history_by_email("test@example.com")
+
+        assert result is True
+
+    def test_company_account_send_email_failure(self, mocker):
+        mock_get = mocker.patch('src.account.requests.get') #to to mockowanie walidacji nipu
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "result": {"subject": {"statusVat": "Czynny"}}
+        }
+
+        mock_send = mocker.patch('src.account.SMTPClient.send', return_value=False)
+
+        company = CompanyAccount("Comp", "1234567890")
+        result = company.send_history_by_email("test@example.com")
+
+        assert result is False
