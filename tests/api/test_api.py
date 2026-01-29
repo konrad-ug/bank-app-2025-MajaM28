@@ -1,8 +1,17 @@
+import pytest
 import requests
 
-from src.account import AccountRegistry, Account
+from src.account import AccountRegistry, Account, MongoAccountsRepository
 
 r = "http://127.0.0.1:5000"
+
+@pytest.fixture
+def mongo_repo(mocker):
+    mock_collection = mocker.Mock()
+    repo = MongoAccountsRepository()
+    repo.collection = mock_collection
+    return repo, mock_collection
+
 
 def test_create_account():
     account_g ={
@@ -272,3 +281,48 @@ def test_transfer_express_success():
     res_get = requests.get(f"{r}/api/accounts/{pesel}")
     assert res_get.status_code == 200
     assert res_get.json()["balance"] == 750.0
+
+
+# TESTY DO MONGO
+def test_save_accounts_to_database():
+    requests.post(f"{r}/api/accounts", json={"first_name": "Walter", "last_name": "White", "pesel": "11122233344"})
+    requests.post(f"{r}/api/accounts", json={"first_name": "Saul", "last_name": "Goodman", "pesel": "55566677788"})
+
+    response = requests.post(f"{r}/api/accounts/save")
+    assert response.status_code == 200
+
+
+def test_load_accounts_from_database():
+    requests.post(f"{r}/api/accounts", json={"first_name": "Jesse", "last_name": "Pinkman", "pesel": "99988877766"})
+
+    requests.post(f"{r}/api/accounts/save")
+
+    requests.delete(f"{r}/api/accounts/99988877766")
+
+    response = requests.post(f"{r}/api/accounts/load")
+    assert response.status_code == 200
+
+    res_get = requests.get(f"{r}/api/accounts/99988877766")
+    assert res_get.status_code == 200
+    assert res_get.json()["pesel"] == "99988877766"
+
+
+
+def test_save_all_clears_collection_and_inserts_accounts(mongo_repo):
+    repo, mock_collection = mongo_repo
+
+    registry = AccountRegistry()
+    acc1 = Account("Jan", "Kowalski", "12345678901")
+    acc2 = Account("Anna", "Nowak", "98765432109")
+    registry.add_account(acc1)
+    registry.add_account(acc2)
+
+    repo.save_all(registry)
+
+    mock_collection.delete_many.assert_called_once_with({})
+    mock_collection.insert_many.assert_called_once()
+
+    inserted = mock_collection.insert_many.call_args[0][0]
+    assert len(inserted) == 2
+    assert inserted[0]["pesel"] == "12345678901"
+    assert inserted[1]["pesel"] == "98765432109"

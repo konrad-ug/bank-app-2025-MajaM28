@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from src.account import AccountRegistry
 from src.account import Account
+from src.account import MongoAccountsRepository
 
 
 app = Flask(__name__)
 registry = AccountRegistry()
+mongoRepo = MongoAccountsRepository()
 
 @app.route("/api/accounts", methods=['POST'])
 def create_account():
@@ -20,8 +22,7 @@ def create_account():
 def get_all_accounts():
     print("Get all accounts request received")
     accounts = registry.all_accounts()
-    accounts_data = [{"first_name": acc.first_name, "last_name": acc.last_name, "pesel":
-    acc.pesel, "balance": acc.balance} for acc in accounts]
+    accounts_data = [{"first_name": acc.first_name, "last_name": acc.last_name, "pesel": acc.pesel, "balance": acc.balance} for acc in accounts]
     return jsonify(accounts_data), 200
 
 @app.route("/api/accounts/count", methods=['GET'])
@@ -108,6 +109,17 @@ def transfer(pesel):
     if transfer_type == "express":
         account_p.balance += amount
         return jsonify({"message": "Express transfer received"}), 200
+
+@app.route("/api/accounts/save", methods=['POST'])
+def save_accounts_to_database():
+    count = mongoRepo.save_all(registry)
+    return jsonify({"message": "Accounts Saved to database"}), 200
+
+@app.route("/api/accounts/load", methods=['POST'])
+def load_accounts_from_database():
+    count = mongoRepo.load_all(registry)
+    return jsonify({"message": "Accounts loaded fromm database"}), 200
+
 
 if __name__ == '__main__':
     print("Starting Flask server...")
