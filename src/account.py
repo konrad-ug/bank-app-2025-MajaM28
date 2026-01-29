@@ -2,6 +2,7 @@ import os
 import requests
 from datetime import date
 from smtp.smtp import SMTPClient
+from pymongo import MongoClient
 
 class Account:
     def __init__(self, first_name, last_name, pesel, promoCode = None):
@@ -160,4 +161,40 @@ class AccountRegistry:
     def account_count(self):
         return len(self.accounts)
 
+class MongoAccountsRepository:
+    def __init__(self):
+        self.client = MongoClient("mongodb://localhost:27017")
+        self.collection = self.client["bank"]["accounts"]
+
+    def save_all(self, registry):
+        self.collection.delete_many({})
+        accounts_data = []
+
+        for account in registry.all_accounts():
+            account_dict = {
+                "first_name": account.first_name,
+                "last_name": account.last_name,
+                "pesel": account.pesel,
+                "balance": account.balance,
+                "history": account.history
+            }
+            accounts_data.append(account_dict)
+
+        if accounts_data:
+            self.collection.insert_many(accounts_data)
+
+
+    def load_all(self, registry):
+        registry.accounts.clear()
+
+        for acc_data in self.collection.find():
+            account = Account(
+                acc_data["first_name"],
+                acc_data["last_name"],
+                acc_data["pesel"]
+            )
+
+            account.balance = acc_data["balance"]
+            account.history = acc_data["history"]
+            registry.add_account(account)
 

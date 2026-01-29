@@ -26,14 +26,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest 
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
+    - name: start mongo
+      run: |
+          docker compose -f mongo.yml up -d
     - name: Start flask
       run: |
         export FLASK_APP=app/api.py
         export FLASK_ENV=development
         export PYTHONPATH=$GITHUB_WORKSPACE
         flask run &
-
     - name: Execute API tests
       run: |
         python3 -m pytest tests/api
