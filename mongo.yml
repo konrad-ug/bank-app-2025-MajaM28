@@ -3,7 +3,6 @@ services:
   mongo:
     image: mongo:latest
     container_name: mongo_container
-    platform: linux/arm64
     ports:
     - "27017:27017"
 # volumes:
