@@ -1,6 +1,6 @@
 pytest==8.4.2
 requests
-coverage
+coverage #feature 9b
 flask
 pytest-mock>=3.12.0
 behave>=1.2.6

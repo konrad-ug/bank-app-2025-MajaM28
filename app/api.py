@@ -3,7 +3,7 @@ from src.account import AccountRegistry
 from src.account import Account
 from src.account import MongoAccountsRepository
 
-
+#feature 15
 app = Flask(__name__)
 registry = AccountRegistry()
 mongoRepo = MongoAccountsRepository()
@@ -15,7 +15,7 @@ def create_account():
     account = Account(data["first_name"], data["last_name"], data["pesel"])
     created = registry.add_account(account)
     if not created:
-        return jsonify({"message": "Account with this PESEL already created"}), 409
+        return jsonify({"message": "Account with this PESEL already created"}), 409 #feature 16
     return jsonify({"message": "Account created"}), 201
 
 @app.route("/api/accounts", methods=['GET'])
@@ -83,7 +83,7 @@ def delete_account(pesel):
     return jsonify({"message": "Account deleted"}), 200
 
 @app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
-def transfer(pesel):
+def transfer(pesel):    #feature 17
     account_p = registry.find_by_pesel(pesel)
     if account_p is None:
         return jsonify({"error": "No account with this pesel found"}), 404
