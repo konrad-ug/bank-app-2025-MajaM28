@@ -6,26 +6,26 @@ from pymongo import MongoClient
 
 class Account:
     def __init__(self, first_name, last_name, pesel, promoCode = None):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.balance = 0.0
-        self.pesel = self.checkPesel(pesel)
+        self.first_name = first_name    #feature 1
+        self.last_name = last_name      #feature 1
+        self.balance = 0.0              #feature 1
+        self.pesel = self.checkPesel(pesel)     #feature 2 i 3
         self.promoCode = promoCode
         self.canUsePromo(self.pesel, promoCode)
-        self.history = []
+        self.history = []       #feature 11
 
 
-    def checkPesel(self,pesel):
+    def checkPesel(self,pesel):     #feature 3
         if pesel is not None and (len(pesel) == 11) :
             return pesel
         else:
             return "Invalid"
 
     def usePromo(self,promo):
-        if isinstance(promo,str) and promo.startswith("PROM_"):
+        if isinstance(promo,str) and promo.startswith("PROM_"):     #feature 4
             self.balance += 50.0
 
-    def canUsePromo(self, pesel, promo):
+    def canUsePromo(self, pesel, promo):        #feature 5
         if pesel != "Invalid":
             year = int(pesel[0:2])
             month = int(pesel[2:4])
@@ -35,35 +35,35 @@ class Account:
             elif year >= 60 :
                     self.usePromo(promo)
 
-    def transferOut(self,amount):
+    def transferOut(self,amount):       #feature 6
         if 0 < amount <= self.balance:
             self.balance -= amount
-            self.history.append(-amount)
+            self.history.append(-amount)    #feature 11
 
-    def transferIn(self,amount):
+    def transferIn(self,amount):         #feature 6
         if amount > 0 :
             self.balance += amount
-            self.history.append(amount)
+            self.history.append(amount)     #feature 11
 
-    def expressTransferOut(self,amount):
+    def expressTransferOut(self,amount):         #feature 8
         if 0 < amount <= self.balance:
             self.balance -= (amount + 1)
-            self.history.append(-amount)
+            self.history.append(-amount)    #feature 11
             self.history.append(-1)
 
-    def _last_three_plus(self):
+    def _last_three_plus(self): #feature 12 (pomocnicze)
         if len(self.history) < 3:
             return False
         last_three = self.history[-3:]
         return min(last_three) > 0
 
-    def _last_five_sum_larger(self, amount):
+    def _last_five_sum_larger(self, amount):    #feature 12 (pomocnicze)
         if len(self.history) < 5:
             return False
         last_five = self.history[-5:]
         return sum(last_five) > amount
 
-    def submit_for_loan(self,amount):
+    def submit_for_loan(self,amount):   #feature 12
         decision = False
 
         if self._last_three_plus():
@@ -77,7 +77,7 @@ class Account:
 
         return decision
 
-    def send_history_by_email(self,email_address):
+    def send_history_by_email(self,email_address):      #feature 19
         today = date.today().strftime('%Y-%m-%d')
         subject = f"Account Transfer History {today}"
         text = f"Personal account history: {self.history}"
@@ -86,6 +86,7 @@ class Account:
         return smtp_client.send(subject, text, email_address)
 
 
+#feature 7
 class CompanyAccount(Account): # pragma: no cover
     def __init__(self,company_name,nip_number):
         self.company_name = company_name
@@ -96,7 +97,7 @@ class CompanyAccount(Account): # pragma: no cover
         self.balance = 0.0
         self.history = []
 
-    def verify_nip_in_registry(self,nip):
+    def verify_nip_in_registry(self,nip):       #feature 18
         base = os.getenv('BANK_APP_MF_URL', 'https://wl-test.mf.gov.pl')
         today = date.today().strftime('%Y-%m-%d')
         url = f"{base}/api/search/nip/{nip}?date={today}"
@@ -111,26 +112,26 @@ class CompanyAccount(Account): # pragma: no cover
 
         return False
 
-    def check_nip(self,number):
+    def check_nip(self,number):     #feature 18
         if isinstance(number,str) and len(number)==10 :
             return number
         else:
             return "Invalid"
 
-    def expressTransferOut(self,amount):
+    def expressTransferOut(self,amount):     #feature 8
         if self.balance >= amount > 0:
             self.balance -= (amount + 5)
             self.history.append(-amount)
             self.history.append(-5)
 
-    def take_loan(self,amount):
+    def take_loan(self,amount):     #feature 13
         if self.balance >= (2*amount) and -1775 in self.history:
             self.balance += amount
             return True
         else:
             return False
 
-    def send_history_by_email(self, email_address):
+    def send_history_by_email(self, email_address): #feature 19
         today = date.today().strftime('%Y-%m-%d')
         subject = f"Account Transfer History {today}"
         text = f"Company account history: {self.history}"
@@ -138,6 +139,7 @@ class CompanyAccount(Account): # pragma: no cover
         smtp_client = SMTPClient()
         return smtp_client.send(subject, text, email_address)
 
+#feature 14
 class AccountRegistry:
     def __init__(self):
         self.accounts = []

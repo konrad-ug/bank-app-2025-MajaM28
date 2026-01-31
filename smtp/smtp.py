@@ -1,4 +1,4 @@
-class SMTPClient:   #pragma: no cover
+class SMTPClient:   #pragma: no cover   #feature 19
     def send(self, subject, text, email_address) -> bool:
         # tutaj byłby kod odpowiedzialny za wysłanie maila
         # return True jezeli wyslanie sie powiodło
